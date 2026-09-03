@@ -2149,6 +2149,7 @@ footer a:hover {
       rgba(139, 215, 45, 0.09);
 }
 
+.founder-photo :global(img),
 .founder-photo img {
   transition: transform .65s var(--motion-smooth),filter .45s ease;
 }
