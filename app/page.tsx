@@ -19,10 +19,7 @@ export default function Home() {
   return (
     <>
       {!ready && (
-        <Splash
-          duration={3000}
-          onFinish={() => setReady(true)}
-        />
+        <Splash onFinish={() => setReady(true)} />
       )}
 
       <main
