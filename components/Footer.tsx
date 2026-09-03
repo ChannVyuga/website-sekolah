@@ -64,7 +64,7 @@ export default function Footer() {
       </div>
 
       <div className="container footer-bottom">
-        ©2026 NeyYoniChanIndah | rights reserved, no negotiations.
+        ©2026 NeyYoniChan | rights reserved, no negotiations.
       </div>
     </footer>
   );
