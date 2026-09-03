@@ -1,89 +1,128 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import styles from "./SplashWelcome.module.css";
 
 interface SplashWelcomeProps {
   /**
-   * Durasi splash tampil penuh, dalam milidetik.
-   * Default 4500ms — mengikuti choreography animasi di SplashWelcome.module.css:
-   *   - huruf terakhir selesai reveal di ~2.7s (delay 1.65s + durasi 1.05s)
-   *   - underline selesai grow di ~3.35s (delay 2.25s + durasi 1.1s)
-   *   - dots selesai muncul di ~3.9s (delay 3.2s + durasi 0.7s)
-   * + jeda ~600ms biar sempat "dilihat" sebelum fade out.
-   * Kalau delay/durasi animasi di CSS diubah, sesuaikan juga angka ini.
+   * Durasi animasi fade-out, dalam milidetik.
+   * Harus sama dengan transition di CSS.
+   * Default: 700ms
    */
-  duration?: number;
-  /** Durasi animasi fade-out, dalam ms. HARUS sama dengan transition di .splash (CSS: 0.7s). */
   fadeOutDuration?: number;
+
   onFinish?: () => void;
 }
 
 const BRAND = "CITRA NEGARA";
 const SPLASH_KEY = "citra-negara-splash-shown";
-const DEFAULT_DURATION = 4500;
-const DEFAULT_FADE_OUT = 700; // harus match transition di .splash (CSS)
 
+const DEFAULT_FADE_OUT = 700;
+
+const AUDIO_SRC = "/sounds/welc2cn.mp3";
 
 export default function SplashWelcome({
-  duration = DEFAULT_DURATION,
   fadeOutDuration = DEFAULT_FADE_OUT,
   onFinish,
 }: SplashWelcomeProps) {
-  // Selalu mulai dari "tampil penuh" (true = default render, bukan null).
-  // Ini mencegah halaman di belakangnya sempat mengintip sebelum JS jalan.
   const [hiding, setHiding] = useState(false);
   const [instant, setInstant] = useState(false);
   const [done, setDone] = useState(false);
+  const [ready, setReady] = useState(false); // splash siap di-tap (setelah entrance animasi teks selesai)
 
-useEffect(() => {
-  const alreadyShown = sessionStorage.getItem(SPLASH_KEY);
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem(SPLASH_KEY);
 
-  if (alreadyShown) {
-    setInstant(true);
-    setHiding(true);
-    setDone(true);
-    onFinish?.();
-    return;
-  }
-
-  sessionStorage.setItem(SPLASH_KEY, "true");
-
-  const effectiveDuration = duration;
-
-  const timer = setTimeout(() => {
-    setHiding(true);
-
-    const finishTimer = setTimeout(() => {
+    if (alreadyShown) {
+      setInstant(true);
+      setHiding(true);
       setDone(true);
       onFinish?.();
-    }, fadeOutDuration);
+      return;
+    }
 
-    return () => clearTimeout(finishTimer);
-  }, effectiveDuration);
+    sessionStorage.setItem(SPLASH_KEY, "true");
 
-  return () => clearTimeout(timer);
-}, [duration, fadeOutDuration, onFinish]);
+    // ==========================================
+    // CREATE AUDIO — disiapin dulu, baru diplay
+    // pas user tap
+    // ==========================================
+    const audio = new Audio();
+    audio.src = AUDIO_SRC;
+    audio.preload = "auto";
+    audio.volume = 0.5;
+    audio.load();
+
+    let destroyed = false;
+    let finished = false;
+
+    // Kasih jeda dikit biar animasi masuk teks kelar dulu
+    // sebelum tap dianggap valid (opsional, biar nggak keburu ke-skip)
+    const readyTimer = window.setTimeout(() => {
+      if (!destroyed) setReady(true);
+    }, 900);
+
+    // ==========================================
+    // HANDLE TAP / KLIK -> play audio + tutup splash
+    // ==========================================
+    const handleActivate = () => {
+      if (destroyed || finished) return;
+      finished = true;
+
+      audio.play().catch(() => {
+        /* kalau tetap gagal, splash tetap ditutup */
+      });
+
+      setHiding(true);
+
+      window.setTimeout(() => {
+        if (destroyed) return;
+        setDone(true);
+        onFinish?.();
+      }, fadeOutDuration);
+
+      window.removeEventListener("pointerdown", handleActivate);
+      window.removeEventListener("keydown", handleActivate);
+    };
+
+    window.addEventListener("pointerdown", handleActivate, { passive: true });
+    window.addEventListener("keydown", handleActivate, { passive: true });
+  
+
+    // ==========================================
+    // CLEANUP
+    // ==========================================
+    return () => {
+      destroyed = true;
+
+      window.clearTimeout(readyTimer);
+
+      window.removeEventListener("pointerdown", handleActivate);
+      window.removeEventListener("keydown", handleActivate);
+      window.removeEventListener("touchstart", handleActivate);
+    };
+  }, [fadeOutDuration, onFinish]);
 
   const letters = useMemo(() => BRAND.split(""), []);
 
-  // Baru unmount total setelah benar-benar selesai (termasuk fade-out).
   if (done) return null;
 
   return (
     <div
-      className={`${styles.splash} ${hiding ? styles.hide : ""} ${
-        instant ? styles.instant : ""
-      }`}
+      className={`${styles.splash} ${
+        hiding ? styles.hide : ""
+      } ${instant ? styles.instant : ""} ${ready ? styles.ready : ""}`}
       aria-hidden={hiding}
-      role="status"
+      role="button"
+      tabIndex={0}
+      aria-label="Ketuk untuk masuk"
       aria-live="polite"
     >
       <div className={styles.auroraA} />
       <div className={styles.auroraB} />
       <div className={styles.auroraC} />
       <div className={styles.grain} />
-
       <div className={styles.centerGlow} />
 
       <div className={styles.textStage}>
@@ -108,10 +147,10 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className={styles.dots}>
-          <span />
-          <span />
-          <span />
+        {/* Ganti dots loading -> tap hint, karena splash sekarang nunggu aksi user */}
+        <div className={styles.tapHint}>
+          <span className={styles.tapHintText}>Ketuk untuk masuk</span>
+          <span className={styles.tapHintPulse} />
         </div>
       </div>
     </div>

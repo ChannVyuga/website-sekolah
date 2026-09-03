@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
+import Navbar from '@/components/Header';
+import Footer from '@/components/Footer';
 import { Target, Eye } from 'lucide-react';
 
 /* ══════════════════════════════════════════

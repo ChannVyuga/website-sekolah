@@ -9,13 +9,25 @@ export default function Hero() {
           Yayasan Pendidikan Citra Negara
         </p>
 
-        {/* ANIMATED HERO TITLE */}
+        {/* ANIMATED HERO TITLE — cycling ID / JP / DE / brand */}
         <div className="hero-title-wrap">
-          <h1 className="hero-title hero-title-welcome">
+          <h1 className="hero-title hero-title-cycle">
             SELAMAT DATANG!
           </h1>
 
-          <h1 className="hero-title hero-title-citra">
+          <h1 className="hero-title hero-title-cycle" lang="en">
+            WELCOME!
+          </h1>
+
+          <h1 className="hero-title hero-title-cycle" lang="ja">
+            ようこそ！
+          </h1>
+
+          <h1 className="hero-title hero-title-cycle" lang="de">
+            WILLKOMMEN!
+          </h1>
+
+          <h1 className="hero-title hero-title-cycle">
             CITRA NEGARA
           </h1>
         </div>
