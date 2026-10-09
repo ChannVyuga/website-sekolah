@@ -64,7 +64,7 @@ export default function Footer() {
       </div>
 
       <div className="container footer-bottom">
-        © 2026 Yayasan Pendidikan Citra Negara. Hak Cipta Dilindungi. | Website By Chantique Putri Virgianty
+        © 2026 Yayasan Pendidikan Citra Negara. Hak Cipta Dilindungi. | 
       </div>
     </footer>
   );

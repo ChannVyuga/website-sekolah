@@ -24,7 +24,7 @@ export default function Hero() {
           </span>
 
           <span className="hero-title hero-title-cycle" aria-hidden="true" lang="de">
-            HERZLICH WILLKOMMEN!
+            HERLICHWILLKOMMEN!
           </span>
 
           <span className="hero-title hero-title-cycle" aria-hidden="true">

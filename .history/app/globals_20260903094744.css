@@ -377,42 +377,50 @@ nav.main-nav a:hover::after, nav.main-nav a.active::after {
   animation-delay: .12s;
 }
 
-/* Semua judul ditumpuk di satu sel grid: tinggi wrapper otomatis
-   mengikuti judul terpanjang, jadi tidak ada teks yang terpotong
-   atau menimpa .sub saat judul turun ke dua baris di mobile. */
 .hero-title-wrap {
-  display: grid;
-  place-items: center;
+  position: relative;
   width: 100%;
-  min-height: clamp(64px, 9vw, 110px);
+  height: clamp(80px, 10vw, 125px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 4px 0;
 }
 
 .hero-title {
-  grid-area: 1 / 1;
-  max-width: 100%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   color: #8fd13f;
   font-family: var(--font-display);
   font-size: clamp(40px, 7vw, 82px);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: .015em;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
   text-shadow: 0 0 6px rgba(143, 209, 63, .9),
     0 0 16px rgba(143, 209, 63, .75),
     0 0 35px rgba(143, 209, 63, .5),
     0 0 70px rgba(143, 209, 63, .25);
+  opacity: 0;
+  will-change: transform,
+    opacity,
+    filter,
+    text-shadow;
 }
 
-/* 5 judul x 3 detik = 15 detik. Tiap judul tampil di slot 20%:
-   masuk 0-4%, tahan sampai 16%, keluar selesai di 20% —
-   tepat saat judul berikutnya mulai masuk. */
 .hero-title-cycle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   opacity: 0;
-  animation: heroTitleCycle 15s cubic-bezier(.65,0,.35,1) infinite both;
-  will-change: transform, opacity, filter;
+  animation: heroTitleCycle 15s cubic-bezier(.65,0,.35,1) infinite;
+  will-change: transform,opacity,filter,text-shadow;
 }
 
 .hero-title-cycle:nth-child(1) {
@@ -435,42 +443,49 @@ nav.main-nav a:hover::after, nav.main-nav a.active::after {
   animation-delay: 12s;
 }
 
+
 @keyframes heroTitleCycle {
   0% {
     opacity: 0;
-    transform: translateY(35px) scale(.88);
-    filter: blur(12px);
+    transform: translateY(25px) scale(.96);
+    filter: blur(6px);
+    text-shadow: none;
   }
-  4%, 16% {
+
+  5% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    text-shadow:
+      0 0 6px rgba(143, 209, 63, .65),
+      0 0 18px rgba(143, 209, 63, .35);
+  }
+
+  17.5% {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: blur(0);
   }
-  20%, 100% {
-    opacity: 0;
-    transform: translateY(-35px) scale(1.08);
-    filter: blur(12px);
-  }
-}
 
-/* Versi reduced-motion: judul tetap berganti, tapi hanya fade
-   (tanpa geser, scale, atau blur). */
-@keyframes heroTitleFade {
-  0% {
+  20% {
     opacity: 0;
+    transform: translateY(-20px) scale(1.02);
+    filter: blur(5px);
+    text-shadow: none;
   }
-  4%, 16% {
-    opacity: 1;
-  }
-  20%, 100% {
+
+  100% {
     opacity: 0;
+    transform: translateY(-20px);
+    filter: blur(5px);
+    text-shadow: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-title-cycle {
-    animation-name: heroTitleFade !important;
-    animation-timing-function: ease-in-out !important;
+    animation: none !important;
+    opacity: 1 !important;
   }
 
   .hero, .hero::before, .hero-content .kicker, .hero-content .sub, .hero-content .desc, .hero-buttons {
@@ -2137,8 +2152,9 @@ footer a:hover {
       rgba(139, 215, 45, 0.09);
 }
 
+.founder-photo :global(img),
 .founder-photo img {
-  transition: transform .65s var(--motion-smooth), filter .45s ease;
+  transition: transform .65s var(--motion-smooth),filter .45s ease;
 }
 
 .founder-photo:hover img {
